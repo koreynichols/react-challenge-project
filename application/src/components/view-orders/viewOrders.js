@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Template } from '../../components';
 import { SERVER_IP } from '../../private';
+import { Link } from "react-router-dom";
+
 import './viewOrders.css';
 
 const DELETE_ORDER_URL = `${SERVER_IP}/api/delete-order`
@@ -57,7 +59,9 @@ class ViewOrders extends Component {
                                     <p>Quantity: {order.quantity}</p>
                                  </div>
                                  <div className="col-md-4 view-order-right-col">
-                                     <button className="btn btn-success">Edit</button>
+                                 <Link to={{pathname:"/order", state: { id: order._id, order_item: order.order_item, quantity: order.quantity }}} className="nav-link">
+                                 <button className="btn btn-success">Edit</button>
+                                </Link>
                                      <button className="btn btn-danger" onClick={() => this.deleteOrder(order._id)}>Delete</button>
                                  </div>
                             </div>
