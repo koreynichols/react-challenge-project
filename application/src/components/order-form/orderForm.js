@@ -37,28 +37,41 @@ class OrderForm extends Component {
 
     submitOrder(event) {
         event.preventDefault();
+        if (this.state.order_item === "") return;
+        
+        if(this.state.id) {
+            this.editOrderSubmit();
+            return;
+        }
+        this.addOrderSubmit(); 
+    }
 
-        let order_url = ADD_ORDER_URL
-        let body = JSON.stringify({
+    addOrderSubmit(){
+        fetch(ADD_ORDER_URL, {
+            method: 'POST',
+            body: JSON.stringify({
                 order_item: this.state.order_item,
                 quantity: this.state.quantity,
                 ordered_by: this.props.auth.email || 'Unknown!',
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
+        .then(res => res.json())
+        .then(response => console.log("Success", JSON.stringify(response)))
+        .catch(error => console.error(error));
+    }
 
-        if(this.state.id) {
-            order_url = EDIT_ORDER_URL;
-            body = JSON.stringify({
-                    id: this.state.id,
-                    order_item: this.state.order_item,
-                    quantity: this.state.quantity,
-                    ordered_by: this.props.auth.email || 'Unknown!',
-            })
-        }
-        
-        if (this.state.order_item === "") return;
-        fetch(order_url, {
+    editOrderSubmit(){
+        fetch(EDIT_ORDER_URL, {
             method: 'POST',
-            body: body,
+            body: JSON.stringify({
+                id: this.state.id,
+                order_item: this.state.order_item,
+                quantity: this.state.quantity,
+                ordered_by: this.props.auth.email || 'Unknown!',
+            }),
             headers: {
                 'Content-Type': 'application/json'
             }
