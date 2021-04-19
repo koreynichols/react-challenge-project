@@ -5,6 +5,7 @@ import { SERVER_IP } from '../../private';
 import './orderForm.css';
 
 const ADD_ORDER_URL = `${SERVER_IP}/api/add-order`
+const EDIT_ORDER_URL = `${SERVER_IP}/api/edit-order`
 
 const mapStateToProps = (state) => ({
     auth: state.auth,
@@ -17,10 +18,17 @@ class OrderForm extends Component {
             order_item: "",
             quantity: "1"
         }
+        if(this.props.location.state) {
+            this.state = {
+            order_item: this.props.location.state.order_item,
+            quantity: this.props.location.state.quantity,
+            id: this.props.location.state.id
+            }
+        }
     }
 
     menuItemChosen(event) {
-        this.setState({ item: event.target.value });
+        this.setState({ order_item: event.target.value });
     }
 
     menuQuantityChosen(event) {
@@ -30,9 +38,36 @@ class OrderForm extends Component {
     submitOrder(event) {
         event.preventDefault();
         if (this.state.order_item === "") return;
+        
+        if(this.state.id) {
+            this.editOrderSubmit();
+            return;
+        }
+        this.addOrderSubmit(); 
+    }
+
+    addOrderSubmit(){
         fetch(ADD_ORDER_URL, {
             method: 'POST',
             body: JSON.stringify({
+                order_item: this.state.order_item,
+                quantity: this.state.quantity,
+                ordered_by: this.props.auth.email || 'Unknown!',
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(response => console.log("Success", JSON.stringify(response)))
+        .catch(error => console.error(error));
+    }
+
+    editOrderSubmit(){
+        fetch(EDIT_ORDER_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                id: this.state.id,
                 order_item: this.state.order_item,
                 quantity: this.state.quantity,
                 ordered_by: this.props.auth.email || 'Unknown!',
